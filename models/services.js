@@ -23,7 +23,20 @@ const ServiceSchema = new mongoose.Schema({
     ref: "category",
     required: true,
   },
-  reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "reviews" }],
+  reviews: [
+    {
+      user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "user",
+      },
+      review: {
+        type: String,
+      },
+      rating: {
+        type: Number,
+      },
+    },
+  ],
   rating: {
     type: Number,
     default: 0,

@@ -67,3 +67,24 @@ exports.contactus = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+exports.postReview = async (req, res) => {
+  if (!req.body.review || !req.body.rating)
+    return res.status(400).json({ message: "invalid data" });
+  try {
+    const id = req.params.serviceId;
+    const review = {
+      review: req.body.review,
+      rating: req.body.rating,
+      user: req.userInfo.id,
+    };
+    const service = await Services.findByIdAndUpdate(id, {
+      $push: { reviews: review },
+    });
+    const updatedService = await Services.findById(id);
+    res.status(200).json({ message: "post review", response: updatedService });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};

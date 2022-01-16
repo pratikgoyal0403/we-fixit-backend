@@ -15,6 +15,18 @@ router.get(
   adminController.getAllOrders
 );
 
+router.put(
+  "/order/:id",
+  authMiddleware.authenticateAdmin,
+  adminController.changeOrderStatus
+);
+
+router.get(
+  "/order/:id",
+  authMiddleware.authenticateAdmin,
+  adminController.getOrderDetail
+);
+
 //service & category routes
 router.get(
   "/services",

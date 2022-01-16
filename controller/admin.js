@@ -5,13 +5,43 @@ const Order = require("../models/order");
 exports.getActiveOrders = async (req, res) => {
   try {
     const orders = await Order.find({
-      $or: [{ status: "Active" }, { status: "Confirmed" }],
+      $not: { status: "Completed" },
     });
-    console.log(orders);
+    let updatedOrders = [];
+    for (let value of orders) {
+      updatedOrders.push(await value.populate("services"));
+    }
     res.status(200).json({
       message: "Active orders fetched",
-      response: orders,
+      response: updatedOrders,
     });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Invalid data" });
+  }
+};
+
+exports.getOrderDetail = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const order = await Order.findById(orderId).populate("services");
+    res.status(200).json({ message: "fetched order detail", response: order });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Invalid data" });
+  }
+};
+
+exports.changeOrderStatus = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    await Order.findByIdAndUpdate(orderId, {
+      status: req.body.status,
+    });
+    const order = await Order.findById(orderId);
+    res
+      .status(200)
+      .json({ message: "status changed successfully", response: order });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Invalid data" });
