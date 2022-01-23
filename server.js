@@ -14,31 +14,31 @@ const adminRoute = require("./routes/admin");
 const app = express();
 
 const storage = multer.diskStorage({
-  destination: path.join(__dirname, "images"),
-  filename: (req, file, cb) => {
-    console.log(file);
-    cb(
-      null,
-      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
-    );
-  },
+	destination: path.join(__dirname, "images"),
+	filename: (req, file, cb) => {
+		console.log(file);
+		cb(
+			null,
+			file.fieldname + "-" + Date.now() + path.extname(file.originalname)
+		);
+	},
 });
 function sanitizeFile(file, cb) {
-  // Define the allowed extension
-  let fileExts = [".png", ".jpg", ".jpeg"];
-  // Check allowed extensions
-  let isAllowedExt = fileExts.includes(
-    path.extname(file.originalname.toLowerCase())
-  );
+	// Define the allowed extension
+	let fileExts = [".png", ".jpg", ".jpeg"];
+	// Check allowed extensions
+	let isAllowedExt = fileExts.includes(
+		path.extname(file.originalname.toLowerCase())
+	);
 
-  // Mime type must be an image
-  let isAllowedMimeType = file.mimetype.startsWith("image/");
-  if (isAllowedExt && isAllowedMimeType) {
-    return cb(null, true); // no errors
-  } else {
-    // pass error msg to callback, which can be displaye in frontend
-    cb("Error: File type not allowed!");
-  }
+	// Mime type must be an image
+	let isAllowedMimeType = file.mimetype.startsWith("image/");
+	if (isAllowedExt && isAllowedMimeType) {
+		return cb(null, true); // no errors
+	} else {
+		// pass error msg to callback, which can be displaye in frontend
+		cb("Error: File type not allowed!");
+	}
 }
 
 //database connection
@@ -52,12 +52,12 @@ app.use(cors());
 app.use(express.static("./public"));
 
 app.use(
-  multer({
-    storage,
-    fileFilter: (req, file, cb) => {
-      sanitizeFile(file, cb);
-    },
-  }).single("image")
+	multer({
+		storage,
+		fileFilter: (req, file, cb) => {
+			sanitizeFile(file, cb);
+		},
+	}).single("image")
 );
 app.use(serviceRoute);
 app.use(cartRoute);
@@ -72,7 +72,13 @@ const port = process.env.PORT;
 // });
 
 app.listen(port, () => {
-  mongoose.connect(process.env.DB_URI, () => {
-    console.log("server is up and running at port: " + port);
-  });
+	const dbUri =
+		process.env.NODE_ENV === "production"
+			? process.env.DB_URI_PROD
+			: process.env.DB_URI_DEV;
+
+	console.log({ dbUri });
+	mongoose.connect(dbUri, () => {
+		console.log("server is up and running at port: " + port);
+	});
 });
