@@ -72,6 +72,9 @@ exports.signup = async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 12);
     const u = { ...req.body, password: hashedPassword };
+    const existingUser = await User.findOne({ email: req.body.email });
+    if (existingUser)
+      return res.status(400).json({ message: "User already exists" });
     const user = await User.create(u);
     res.status(201).json({ message: "user signed up", response: user });
   } catch (err) {
@@ -86,7 +89,6 @@ exports.login = async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
     if (!user) return res.status(400).json({ message: "User not found" });
-    console.log(req.body.password, user);
     const isSame = await bcrypt.compare(req.body.password, user.password);
     if (!isSame) return res.status(400).json({ message: "Incorrect Password" });
     const token = jwt.sign(
