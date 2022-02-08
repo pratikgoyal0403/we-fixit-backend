@@ -1,6 +1,7 @@
 const Categories = require("../models/Category");
 const Services = require("../models/services");
 const Order = require("../models/order");
+const AdminReview = require("../models/AdminReview");
 
 exports.getActiveOrders = async (req, res) => {
   try {
@@ -212,5 +213,69 @@ exports.deleteService = async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "internal server error" });
+  }
+};
+
+////////////////////////////////reviews
+
+exports.getReviews = async (req, res) => {
+  try {
+    const reviews = await AdminReview.find();
+    res.status(200).json({ message: "review posted", response: reviews });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+exports.submitReview = async (req, res) => {
+  if (
+    !req.body.username ||
+    !req.body.email ||
+    !req.body.rating ||
+    !req.body.review
+  ) {
+    return res.status(400).json({ message: "Invalid data" });
+  }
+  try {
+    const review = await AdminReview.create(req.body);
+    res
+      .status(201)
+      .json({ message: "review posted successfully", response: review });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+exports.editReview = async (req, res) => {
+  try {
+    const reviewId = req.params.id;
+    const updatedReview = await AdminReview.findByIdAndUpdate(
+      reviewId,
+      req.body,
+      { new: true }
+    );
+    res.status(201).json({
+      message: "review updated successfully",
+      response: updatedReview,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Internal Server error" });
+  }
+};
+
+exports.deleteReview = async (req, res) => {
+  try {
+    const reviewId = req.params.id;
+    const deletedReview = await AdminReview.findByIdAndDelete(reviewId);      
+    res.status(201).json({
+      message: "review updated successfully",
+      response: reviewId,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Internal Server error" });
   }
 };

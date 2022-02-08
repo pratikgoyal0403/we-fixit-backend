@@ -69,4 +69,25 @@ router.delete(
   adminController.deleteCategory
 );
 
+router.get(
+  "/review",
+  authMiddleware.authenticateAdmin,
+  adminController.getReviews
+);
+router.post(
+  "/review",
+  authMiddleware.authenticateAdmin,
+  adminController.submitReview
+);
+router.put(
+  "/review/:id",
+  authMiddleware.authenticateAdmin,
+  adminController.editReview
+);
+router.delete(
+  "/review/:id",
+  authMiddleware.authenticateAdmin,
+  adminController.deleteReview
+);
+
 module.exports = router;
